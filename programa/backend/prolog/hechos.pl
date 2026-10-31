@@ -2,11 +2,6 @@
 % hechos.pl  -  Academia Detectives
 % Proyecto Programado 3 - Lenguajes de Programacion (IC-4700)
 %
-% Este archivo contiene SOLO HECHOS (la base de conocimiento del caso).
-% No lleva reglas: las reglas estan en predicados.pl.
-% El profesor reemplazara este archivo por otros casos, asi que
-% predicados.pl debe funcionar con cualquier version de estos hechos.
-%
 % Caso: desaparicion en la bodega de un museo.
 %
 % Reglas de sintaxis que se usan en todo el archivo:
