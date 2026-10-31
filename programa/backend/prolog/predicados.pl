@@ -3,9 +3,7 @@
 % Proyecto Programado 3 - Lenguajes de Programacion (IC-4700)
 %
 % Reglas (predicados) del juego. Los datos del caso estan en
-% hechos.pl, que el profesor puede reemplazar por otro caso.
-% Por eso estas reglas NUNCA deben nombrar personas, lugares
-% u horas concretas: solo usan variables.
+% hechos.pl
 % ============================================================
 
 :- encoding(utf8).
