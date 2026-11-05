@@ -7,27 +7,27 @@
 % ============================================================
 
 :- encoding(utf8).
-
-
+ 
+ 
 % ------------------------------------------------------------
 % CABECERA
 % ------------------------------------------------------------
-
+ 
 % Declara que estos predicados pueden existir o no en un caso.
 % Si un hechos.pl no trae, por ejemplo, ubicado/2, Prolog responde
 % "false" en lugar de dar un error de "predicado no existe".
 :- dynamic persona/1, lugar/2, objeto/1, ubicado/2,
            acceso/2, accesoPorObjeto/2, estuvo/3,
            evento/3, evidencia/3, corresponde/2, testimonio/3.
-
+ 
 % Carga los hechos del caso (hechos.pl, en esta misma carpeta).
 :- consult(hechos).
-
-
+ 
+ 
 % ============================================================
-% PREDICADOS AUXILIARES Y BASE
+% PREDICADOS AUXILIARES
 % ============================================================
-
+ 
 % ------------------------------------------------------------
 % minutos(+Hora, -Minutos)
 % Entrada:   Hora en formato HHMM (entero), por ejemplo 1955.
@@ -39,8 +39,8 @@
 % ------------------------------------------------------------
 minutos(Hora, Minutos) :-
     Minutos is (Hora // 100) * 60 + (Hora mod 100).
-
-
+ 
+ 
 % ------------------------------------------------------------
 % ventana_evento(-Inicio, -Fin, -Lugar)
 % Entrada:   ninguna (usa el unico evento/3 del caso).
@@ -51,38 +51,11 @@ minutos(Hora, Minutos) :-
 %            evento. Supone eventos dentro de un mismo dia (no cruza
 %            la medianoche).
 % Objetivo:  Definir el intervalo de tiempo que usan las demas reglas
-%            (coartada, sospechoso, descartar) en un solo lugar, para
+%            (coartada y sospechoso) en un solo lugar, para
 %            que cambiar el tamano de la ventana sea modificar 2 lineas.
 % ------------------------------------------------------------
 ventana_evento(Inicio, Fin, Lugar) :-
     evento(_, Lugar, Hora),
     Inicio is Hora - 100,
     Fin is Hora + 100.
-
-
-% ------------------------------------------------------------
-% estuvo_en_intervalo(?Persona, ?Lugar, +Inicio, +Fin)
-% Entrada:   Persona y Lugar (pueden ser variables), Inicio y Fin
-%            en formato HHMM.
-% Salida:    Verdadero si hay un registro estuvo/3 de esa persona en
-%            ese lugar con una hora entre Inicio y Fin (ambos incluidos).
-%            Con variables, devuelve todas las soluciones por backtracking.
-% Restricc.: Inicio y Fin deben estar instanciados (ser numeros).
-% Objetivo:  Saber si alguien estuvo en un lugar durante un periodo.
-% ------------------------------------------------------------
-estuvo_en_intervalo(Persona, Lugar, Inicio, Fin) :-
-    estuvo(Persona, Lugar, Hora),
-    Hora >= Inicio,
-    Hora =< Fin.
-
-
-% ------------------------------------------------------------
-% evidencias_de(+Persona, -Evidencias)
-% Entrada:   Persona (atomo).
-% Salida:    Lista con las evidencias relacionadas con la persona
-%            segun corresponde/2. Lista vacia [] si no tiene ninguna.
-% Restricc.: Ninguna. Nunca falla (siempre devuelve una lista).
-% Objetivo:  Reunir en una lista todas las evidencias de una persona.
-% ------------------------------------------------------------
-evidencias_de(Persona, Evidencias) :-
-    findall(Evidencia, corresponde(Evidencia, Persona), Evidencias).
+    
