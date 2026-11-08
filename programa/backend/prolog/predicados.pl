@@ -5,7 +5,7 @@
 % Reglas (predicados) del juego. Los datos del caso estan en
 % hechos.pl
 % ============================================================
-
+ 
 :- encoding(utf8).
  
  
@@ -59,3 +59,99 @@ ventana_evento(Inicio, Fin, Lugar) :-
     Inicio is Hora - 100,
     Fin is Hora + 100.
     
+% ============================================================
+% REGLAS DEL CASO
+% ============================================================
+ 
+% ------------------------------------------------------------
+% tiene_acceso(?Persona, ?Lugar)
+% Entrada:   Persona y Lugar (atomos; pueden ser variables).
+% Salida:    Verdadero si la persona puede ingresar al lugar. Con
+%            variables, devuelve todas las soluciones por backtracking.
+% Restricc.: Un mismo par puede salir repetido si se cumple por
+%            varias vias (por ejemplo, acceso directo y por objeto).
+% Objetivo:  Determinar si una persona tiene autorizacion para entrar
+%            a un lugar, por dos vias:
+%            1) acceso directo, segun acceso/2;
+%            2) acceso por objeto: el lugar se abre con un objeto
+%               (accesoPorObjeto/2), el objeto esta en cierto lugar
+%               (ubicado/2) y la persona estuvo registrada en ese
+%               lugar, por lo que pudo obtenerlo.
+% ------------------------------------------------------------
+tiene_acceso(Persona, Lugar) :-
+    acceso(Persona, Lugar).
+ 
+tiene_acceso(Persona, Lugar) :-
+    accesoPorObjeto(Lugar, Objeto),
+    ubicado(Objeto, LugarObjeto),
+    estuvo(Persona, LugarObjeto, _).
+ 
+ 
+% ------------------------------------------------------------
+% tiene_contradiccion(?Persona)
+% Entrada:   Persona (atomo).
+% Salida:    Verdadero si algun testimonio de la persona es
+%            incompatible con sus registros de movimientos.
+% Restricc.: Se considera que hay contradiccion cuando el testimonio
+%            ubica a la persona en un lugar y un registro estuvo/3 la
+%            ubica en OTRO lugar con una diferencia de 10 minutos o
+%            menos entre ambas horas.
+% Objetivo:  Detectar cuando lo que dice una persona no coincide con
+%            lo que dicen los registros, sin guardar un hecho que diga
+%            "miente" (se infiere con las reglas).
+% ------------------------------------------------------------
+tiene_contradiccion(Persona) :-
+    testimonio(Persona, LugarTestimonio, HoraTestimonio),
+    estuvo(Persona, LugarRegistro, HoraRegistro),
+    LugarTestimonio \= LugarRegistro,
+    minutos(HoraTestimonio, MinutosTestimonio),
+    minutos(HoraRegistro, MinutosRegistro),
+    abs(MinutosTestimonio - MinutosRegistro) =< 10.
+ 
+ 
+% ------------------------------------------------------------
+% tiene_coartada(?Persona)
+% Entrada:   Persona (atomo).
+% Salida:    Verdadero si la persona tiene una posible coartada.
+% Restricc.: Usa la ventana de tiempo de ventana_evento/3. Debe
+%            existir un hecho evento/3.
+% Objetivo:  Inferir una coartada (no se guarda como hecho): la
+%            persona declaro estar en un lugar DISTINTO al del evento
+%            durante la ventana del evento, y sus registros no
+%            contradicen ese testimonio (\+ tiene_contradiccion).
+% ------------------------------------------------------------
+tiene_coartada(Persona) :-
+    ventana_evento(Inicio, Fin, LugarEvento),
+    testimonio(Persona, LugarTestimonio, HoraTestimonio),
+    HoraTestimonio >= Inicio,
+    HoraTestimonio =< Fin,
+    LugarTestimonio \= LugarEvento,
+    \+ tiene_contradiccion(Persona).
+ 
+ 
+% ------------------------------------------------------------
+% posible_sospechoso(?Persona)
+% Entrada:   Persona (atomo) o variable para listar a todos.
+% Salida:    Verdadero si la persona cumple las tres condiciones.
+%            Con variable, devuelve cada sospechoso una sola vez.
+% Restricc.: Debe existir un hecho evento/3.
+% Objetivo:  Decidir si una persona es posible sospechosa del evento
+%            central. Condiciones (todas juntas):
+%            1) Presencia: estuvo en el lugar del evento durante la
+%               ventana de tiempo.
+%            2) Oportunidad: tenia acceso a ese lugar O tiene alguna
+%               evidencia relacionada con ella (corresponde/2).
+%            3) Sin coartada: no se puede inferir una coartada.
+%            Se usa once/1 para que una persona no salga repetida si
+%            cumple una condicion de varias formas.
+% ------------------------------------------------------------
+posible_sospechoso(Persona) :-
+    persona(Persona),
+    ventana_evento(Inicio, Fin, LugarEvento),
+    once(( estuvo(Persona, LugarEvento, Hora),
+           Hora >= Inicio,
+           Hora =< Fin )),
+    once(( tiene_acceso(Persona, LugarEvento)
+         ; corresponde(_, Persona) )),
+    \+ tiene_coartada(Persona).
+ 
