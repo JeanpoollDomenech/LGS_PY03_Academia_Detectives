@@ -1,6 +1,5 @@
-// server.js - Backend de Academia Detectives
 // Rol: recibir la peticion de React, ejecutar Prolog y devolver el texto que Prolog imprime
-// TODA la logica del caso vive en Prolog (prolog/predicados.pl)
+// TODA la logica del caso vive en Prolog (prolog/predicados.pl); aqui no se decide nada
 
 import express from 'express';
 import { execFile } from 'node:child_process';
@@ -13,8 +12,11 @@ const PUERTO = 3001;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARCHIVO_PROLOG = path.join(__dirname, 'prolog', 'predicados.pl');
 
-// Si swipl no esta en el PATH, se puede indicar la ruta completa con la variable SWIPL
+// Si "swipl" no esta en el PATH, se puede indicar la ruta completa con la variable SWIPL
 const SWIPL = process.env.SWIPL || 'swipl';
+
+// Codigo de salida con el que Prolog avisa que la persona no existe en persona/1
+const CODIGO_PERSONA_INEXISTENTE = 3;
 
 // ejecutarProlog(meta)
 // Entrada:   meta = texto con la meta de Prolog a ejecutar (sin el punto final)
@@ -25,7 +27,11 @@ function ejecutarProlog(meta) {
   const argumentos = ['-q', '-s', ARCHIVO_PROLOG, '-g', meta, '-t', 'halt'];
   return new Promise((resolve, reject) => {
     execFile(SWIPL, argumentos, { timeout: 5000, cwd: __dirname }, (error, stdout, stderr) => {
-      if (error) {
+      if (error && error.code === CODIGO_PERSONA_INEXISTENTE) {
+        const noExiste = new Error('La persona no existe en el caso.');
+        noExiste.estado = 404;
+        reject(noExiste);
+      } else if (error) {
         const detalle = (stderr || error.message).trim().split('\n')[0];
         reject(new Error(`Prolog no pudo responder: ${detalle}`));
       } else {
@@ -44,7 +50,7 @@ async function responder(res, meta) {
     const resultado = await ejecutarProlog(meta);
     res.json({ ok: true, resultado });
   } catch (error) {
-    res.status(500).json({ ok: false, error: error.message });
+    res.status(error.estado ?? 500).json({ ok: false, error: error.message });
   }
 }
 
@@ -69,18 +75,24 @@ app.get('/api/objetos', (req, res) => {
 const NOMBRE_VALIDO = /^[a-z][a-z0-9_]*$/;
 
 // rutaPersona(ruta, construirMeta)
-// Entrada:   ruta base (ej. '/api/acceso') y una funcion que arma la meta de Prolog
-//            a partir del nombre de la persona
-// Salida:    registra GET <ruta>/:persona en Express
-// Restricc.: rechaza con 400 los nombres que no cumplan NOMBRE_VALIDO
-// Objetivo:  validar el nombre una sola vez para todas las consultas por persona
+// Entrada:   ruta base ('/api/acceso') y una funcion que arma la meta de Prolog
+//            a partir del nombre de la persona.
+// Salida:    registra GET <ruta>/:persona en Express.
+// Restricc.: rechaza con 400 los nombres que no cumplan NOMBRE_VALIDO y con 404
+//            los que no existan en persona/1.
+// Objetivo:  validar el nombre una sola vez para todas las consultas por persona.
 function rutaPersona(ruta, construirMeta) {
   app.get(`${ruta}/:persona`, (req, res) => {
     const { persona } = req.params;
     if (!NOMBRE_VALIDO.test(persona)) {
       return res.status(400).json({ ok: false, error: 'Nombre de persona invalido' });
     }
-    responder(res, construirMeta(persona));
+    // Si la persona no esta en persona/1, Prolog termina con el codigo 3 (error 404)
+    // Si existe, ejecuta la consulta normal
+    responder(
+      res,
+      `( \\+ persona(${persona}) -> halt(${CODIGO_PERSONA_INEXISTENTE}) ; ( ${construirMeta(persona)} ) )`
+    );
   });
 }
 
@@ -96,17 +108,16 @@ rutaPersona('/api/contradiccion', (p) =>
 rutaPersona('/api/sospechoso', (p) =>
   `(posible_sospechoso(${p}) -> writeln('Si') ; writeln('No'))`);
 
-
-// GET /api/responsables -> lista de personas que son posibles sospechosos
+// GET /api/responsables lista de personas que son posibles sospechosos
 app.get('/api/responsables', (req, res) => {
   responder(res, "posibles_responsables(L), format('~w~n', [L])");
 });
 
-// GET /api/explicaciones/:persona -> una explicacion por linea (backtracking de Prolog)
+// GET /api/explicaciones/:persona una explicacion por linea (backtracking de Prolog)
 rutaPersona('/api/explicaciones', (p) =>
   `forall(explicaciones(${p}, E), format('~w~n', [E]))`);
 
-// GET /api/resolver -> reporte completo que imprime resolver_caso/0
+// GET /api/resolver reporte completo que imprime resolver_caso/0
 app.get('/api/resolver', (req, res) => {
   responder(res, 'resolver_caso');
 });
