@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 
-// Consultas por persona: texto del boton y ruta del backend.
+// Consultas por persona: texto del boton y ruta del backend
 const CONSULTAS = [
   { etiqueta: 'Lugares con acceso', ruta: '/api/acceso' },
   { etiqueta: '¿Tiene coartada?', ruta: '/api/coartada' },
   { etiqueta: '¿Tiene contradicción?', ruta: '/api/contradiccion' },
   { etiqueta: '¿Es posible sospechoso?', ruta: '/api/sospechoso' },
+  { etiqueta: 'Explicaciones', ruta: '/api/explicaciones' },
+];
+
+// Consultas del caso completo (no dependen de la persona elegida)
+const GENERALES = [
+  { etiqueta: 'Posibles responsables', ruta: '/api/responsables' },
 ];
 
 // pedir(url)
@@ -45,15 +51,15 @@ export default function App() {
       .catch((e) => setError(`No se pudieron cargar las personas: ${e.message}`));
   }, []);
 
-  // consultar(ruta)
-  // Entrada:   ruta base de la consulta (ej. '/api/coartada')
-  // Objetivo:  pedir la consulta para la persona elegida y mostrar el resultado o el error
-  async function consultar(ruta) {
+  // consultar(url)
+  // Entrada:   url completa de la consulta (ej. '/api/coartada/ana' o '/api/responsables')
+  // Objetivo:  pedir la consulta y mostrar el resultado o el error
+  async function consultar(url) {
     setCargando(true);
     setError('');
     setResultado('');
     try {
-      setResultado(await pedir(`${ruta}/${persona}`));
+      setResultado(await pedir(url));
     } catch (e) {
       setError(e.message);
     } finally {
@@ -74,9 +80,19 @@ export default function App() {
         </select>
       </label>
 
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '16px 0' }}>
+      <h3>Consultas sobre la persona elegida</h3>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
         {CONSULTAS.map((c) => (
-          <button key={c.ruta} disabled={!persona || cargando} onClick={() => consultar(c.ruta)}>
+          <button key={c.ruta} disabled={!persona || cargando} onClick={() => consultar(`${c.ruta}/${persona}`)}>
+            {c.etiqueta}
+          </button>
+        ))}
+      </div>
+
+      <h3>Consultas del caso</h3>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+        {GENERALES.map((c) => (
+          <button key={c.ruta} disabled={cargando} onClick={() => consultar(c.ruta)}>
             {c.etiqueta}
           </button>
         ))}
@@ -84,7 +100,7 @@ export default function App() {
 
       {cargando && <p>Cargando...</p>}
       {error && <p style={{ color: 'crimson' }}>{error}</p>}
-      <pre style={{ background: '#f4f4f4', color: '#111', padding: 12, minHeight: 60 }}>{resultado}</pre>
+      <pre style={{ background: '#f4f4f4', color: '#111', padding: 12, minHeight: 60, whiteSpace: 'pre-wrap' }}>{resultado}</pre>
     </div>
   );
 }
