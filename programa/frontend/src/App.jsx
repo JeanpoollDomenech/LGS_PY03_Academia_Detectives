@@ -28,7 +28,7 @@ async function pedir(url) {
 
 // listaProlog(texto)
 // Entrada:   texto de una lista impresa por Prolog, ej. "[ana,bruno]"
-// Salida:    arreglo de nombres, ej. ['ana', 'bruno'] ([] si la lista esta vacia)
+// Salida:    arreglo de nombres, ['ana', 'bruno'] ([] si la lista esta vacia)
 function listaProlog(texto) {
   const limpio = texto.trim().replace(/^\[|\]$/g, '');
   return limpio === '' ? [] : limpio.split(',').map((nombre) => nombre.trim());
@@ -40,6 +40,8 @@ export default function App() {
   const [resultado, setResultado] = useState('');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
+  const [reporte, setReporte] = useState('');
+  const [resolviendo, setResolviendo] = useState(false);
 
   useEffect(() => {
     pedir('/api/personas')
@@ -52,7 +54,7 @@ export default function App() {
   }, []);
 
   // consultar(url)
-  // Entrada:   url completa de la consulta (ej. '/api/coartada/ana' o '/api/responsables')
+  // Entrada:   url completa de la consulta ('/api/coartada/ana' o '/api/responsables')
   // Objetivo:  pedir la consulta y mostrar el resultado o el error
   async function consultar(url) {
     setCargando(true);
@@ -64,6 +66,21 @@ export default function App() {
       setError(e.message);
     } finally {
       setCargando(false);
+    }
+  }
+
+  // resolverCaso()
+  // Objetivo:  pedir el reporte completo de resolver_caso/0 y mostrarlo en el area destacada
+  async function resolverCaso() {
+    setResolviendo(true);
+    setError('');
+    setReporte('');
+    try {
+      setReporte(await pedir('/api/resolver'));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setResolviendo(false);
     }
   }
 
@@ -101,6 +118,32 @@ export default function App() {
       {cargando && <p>Cargando...</p>}
       {error && <p style={{ color: 'crimson' }}>{error}</p>}
       <pre style={{ background: '#f4f4f4', color: '#111', padding: 12, minHeight: 60, whiteSpace: 'pre-wrap' }}>{resultado}</pre>
+
+      <hr style={{ margin: '24px 0' }} />
+
+      <h2>Resolver el caso</h2>
+      <button
+        disabled={resolviendo}
+        onClick={resolverCaso}
+        style={{ fontSize: 18, padding: '10px 24px', fontWeight: 'bold' }}
+      >
+        {resolviendo ? 'Resolviendo...' : 'Resolver caso'}
+      </button>
+      <pre
+        style={{
+          background: '#fffbe6',
+          color: '#111',
+          border: '2px solid #d4a72c',
+          borderRadius: 6,
+          padding: 16,
+          marginTop: 16,
+          minHeight: 200,
+          fontSize: 15,
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {reporte || 'El reporte del caso aparecera aqui.'}
+      </pre>
     </div>
   );
 }
