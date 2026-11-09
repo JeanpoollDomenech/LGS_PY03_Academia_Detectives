@@ -1,3 +1,4 @@
+// App.jsx: manejo de errores (backend apagado, respuestas invalidas, resultados vacios)
 import { useEffect, useState } from 'react';
 
 // Consultas por persona: texto del boton y ruta del backend
@@ -15,19 +16,30 @@ const GENERALES = [
 ];
 
 // pedir(url)
-// Entrada:   ruta del backend (ej. '/api/personas')
+// Entrada:   ruta del backend ('/api/personas')
 // Salida:    Promise con el texto que devolvio Prolog
-// Restricc.: lanza un Error con el mensaje del backend si { ok: false }
+// Restricc.: lanza un Error con un mensaje claro si no hay conexion, si el backend
+//            no responde con JSON o si responde { ok: false }
 // Objetivo:  una sola funcion para hablar con el backend
 async function pedir(url) {
-  const respuesta = await fetch(url);
-  const datos = await respuesta.json();
+  let respuesta;
+  try {
+    respuesta = await fetch(url);
+  } catch {
+    throw new Error('No se pudo contactar al servidor. Verifica que el frontend esté corriendo (npm run dev).');
+  }
+  let datos;
+  try {
+    datos = await respuesta.json();
+  } catch {
+    throw new Error('El backend no responde. Verifica que server.js esté corriendo en el puerto 3001.');
+  }
   if (!datos.ok) throw new Error(datos.error);
   return datos.resultado;
 }
 
 // listaProlog(texto)
-// Entrada:   texto de una lista impresa por Prolog, ej. "[ana,bruno]"
+// Entrada:   texto de una lista impresa por Prolog, "[ana,bruno]".
 // Salida:    arreglo de nombres, ['ana', 'bruno'] ([] si la lista esta vacia)
 function listaProlog(texto) {
   const limpio = texto.trim().replace(/^\[|\]$/g, '');
@@ -61,7 +73,7 @@ export default function App() {
     setError('');
     setResultado('');
     try {
-      setResultado(await pedir(url));
+      setResultado((await pedir(url)) || 'Sin resultados para esta consulta.');
     } catch (e) {
       setError(e.message);
     } finally {
@@ -76,7 +88,7 @@ export default function App() {
     setError('');
     setReporte('');
     try {
-      setReporte(await pedir('/api/resolver'));
+      setReporte((await pedir('/api/resolver')) || 'El caso no produjo ningún reporte.');
     } catch (e) {
       setError(e.message);
     } finally {
