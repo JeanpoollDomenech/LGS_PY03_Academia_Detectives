@@ -1,6 +1,6 @@
 // server.js - Backend de Academia Detectives
 // Rol: recibir la peticion de React, ejecutar Prolog y devolver el texto que Prolog imprime
-// TODA la logica del caso vive en Prolog (prolog/predicados.pl)
+// TODA la logica del caso vive en Prolog (prolog/predicados.pl); aqui no se decide nada
 
 import express from 'express';
 import { execFile } from 'node:child_process';
@@ -48,20 +48,53 @@ async function responder(res, meta) {
   }
 }
 
-// GET /api/personas lista de personas del caso
+// GET /api/personas -> lista de personas del caso
 app.get('/api/personas', (req, res) => {
   responder(res, "findall(P, persona(P), L), format('~w~n', [L])");
 });
 
-// GET /api/lugares un lugar por linea, con su descripcion
+// GET /api/lugares -> un lugar por linea, con su descripcion
 app.get('/api/lugares', (req, res) => {
   responder(res, "forall(lugar(N, D), format('~w: ~w~n', [N, D]))");
 });
 
-// GET /api/objetos lista de objetos del caso
+// GET /api/objetos -> lista de objetos del caso
 app.get('/api/objetos', (req, res) => {
   responder(res, "findall(O, objeto(O), L), format('~w~n', [L])");
 });
+
+// Un nombre de persona valido empieza con letra minuscula y sigue con letras, numeros o "_".
+// Asi nunca puede ser una variable de Prolog (empieza con "_" o mayuscula) ni traer
+// caracteres especiales (comillas, ";", espacios) que cambien la meta.
+const NOMBRE_VALIDO = /^[a-z][a-z0-9_]*$/;
+
+// rutaPersona(ruta, construirMeta)
+// Entrada:   ruta base (ej. '/api/acceso') y una funcion que arma la meta de Prolog
+//            a partir del nombre de la persona
+// Salida:    registra GET <ruta>/:persona en Express
+// Restricc.: rechaza con 400 los nombres que no cumplan NOMBRE_VALIDO
+// Objetivo:  validar el nombre una sola vez para todas las consultas por persona
+function rutaPersona(ruta, construirMeta) {
+  app.get(`${ruta}/:persona`, (req, res) => {
+    const { persona } = req.params;
+    if (!NOMBRE_VALIDO.test(persona)) {
+      return res.status(400).json({ ok: false, error: 'Nombre de persona invalido' });
+    }
+    responder(res, construirMeta(persona));
+  });
+}
+
+// Lugares a los que una persona tiene acceso (sort/2 quita los repetidos)
+rutaPersona('/api/acceso', (p) =>
+  `findall(L, tiene_acceso(${p}, L), L0), sort(L0, Ls), format('~w~n', [Ls])`);
+
+// Consultas de tipo Si/No
+rutaPersona('/api/coartada', (p) =>
+  `(tiene_coartada(${p}) -> writeln('Si') ; writeln('No'))`);
+rutaPersona('/api/contradiccion', (p) =>
+  `(tiene_contradiccion(${p}) -> writeln('Si') ; writeln('No'))`);
+rutaPersona('/api/sospechoso', (p) =>
+  `(posible_sospechoso(${p}) -> writeln('Si') ; writeln('No'))`);
 
 app.listen(PUERTO, () => {
   console.log(`Backend escuchando en http://localhost:${PUERTO}`);
