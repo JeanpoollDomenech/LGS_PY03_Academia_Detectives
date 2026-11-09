@@ -1,22 +1,54 @@
-// App.jsx - Prueba de punta a punta (Paso 7): React -> Node -> Prolog
 import { useEffect, useState } from 'react';
- 
+
+// pedir(url)
+// Entrada:   ruta del backend (ej. '/api/personas')
+// Salida:    Promise con el texto que devolvio Prolog
+// Restricc.: lanza un Error con el mensaje del backend si { ok: false }
+// Objetivo:  una sola funcion para hablar con el backend
+async function pedir(url) {
+  const respuesta = await fetch(url);
+  const datos = await respuesta.json();
+  if (!datos.ok) throw new Error(datos.error);
+  return datos.resultado;
+}
+
+// listaProlog(texto)
+// Entrada:   texto de una lista impresa por Prolog, ej. "[ana,bruno]"
+// Salida:    arreglo de nombres, ej. ['ana', 'bruno'] ([] si la lista esta vacia)
+function listaProlog(texto) {
+  const limpio = texto.trim().replace(/^\[|\]$/g, '');
+  return limpio === '' ? [] : limpio.split(',').map((nombre) => nombre.trim());
+}
+
 export default function App() {
-  const [texto, setTexto] = useState('Cargando...');
- 
+  const [personas, setPersonas] = useState([]);
+  const [persona, setPersona] = useState('');
+  const [error, setError] = useState('');
+
   useEffect(() => {
-    fetch('/api/personas')
-      .then((respuesta) => respuesta.json())
-      .then((datos) => setTexto(datos.ok ? datos.resultado : `Error: ${datos.error}`))
-      .catch(() => setTexto('No se pudo contactar al backend. ¿Esta corriendo server.js?'));
+    pedir('/api/personas')
+      .then((texto) => {
+        const lista = listaProlog(texto);
+        setPersonas(lista);
+        setPersona(lista[0] ?? '');
+      })
+      .catch((e) => setError(`No se pudieron cargar las personas: ${e.message}`));
   }, []);
- 
+
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 20, maxWidth: 800, margin: '0 auto' }}>
       <h1>Academia Detectives</h1>
-      <h3>Personas del caso</h3>
-      <pre>{texto}</pre>
+
+      <label>
+        Persona:{' '}
+        <select value={persona} onChange={(e) => setPersona(e.target.value)}>
+          {personas.map((nombre) => (
+            <option key={nombre} value={nombre}>{nombre}</option>
+          ))}
+        </select>
+      </label>
+
+      {error && <p style={{ color: 'crimson' }}>{error}</p>}
     </div>
   );
 }
- 
