@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
 
+// Consultas por persona: texto del boton y ruta del backend.
+const CONSULTAS = [
+  { etiqueta: 'Lugares con acceso', ruta: '/api/acceso' },
+  { etiqueta: '¿Tiene coartada?', ruta: '/api/coartada' },
+  { etiqueta: '¿Tiene contradicción?', ruta: '/api/contradiccion' },
+  { etiqueta: '¿Es posible sospechoso?', ruta: '/api/sospechoso' },
+];
+
 // pedir(url)
 // Entrada:   ruta del backend (ej. '/api/personas')
 // Salida:    Promise con el texto que devolvio Prolog
@@ -23,6 +31,8 @@ function listaProlog(texto) {
 export default function App() {
   const [personas, setPersonas] = useState([]);
   const [persona, setPersona] = useState('');
+  const [resultado, setResultado] = useState('');
+  const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -34,6 +44,22 @@ export default function App() {
       })
       .catch((e) => setError(`No se pudieron cargar las personas: ${e.message}`));
   }, []);
+
+  // consultar(ruta)
+  // Entrada:   ruta base de la consulta (ej. '/api/coartada')
+  // Objetivo:  pedir la consulta para la persona elegida y mostrar el resultado o el error
+  async function consultar(ruta) {
+    setCargando(true);
+    setError('');
+    setResultado('');
+    try {
+      setResultado(await pedir(`${ruta}/${persona}`));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setCargando(false);
+    }
+  }
 
   return (
     <div style={{ padding: 20, maxWidth: 800, margin: '0 auto' }}>
@@ -48,7 +74,17 @@ export default function App() {
         </select>
       </label>
 
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '16px 0' }}>
+        {CONSULTAS.map((c) => (
+          <button key={c.ruta} disabled={!persona || cargando} onClick={() => consultar(c.ruta)}>
+            {c.etiqueta}
+          </button>
+        ))}
+      </div>
+
+      {cargando && <p>Cargando...</p>}
       {error && <p style={{ color: 'crimson' }}>{error}</p>}
+      <pre style={{ background: '#f4f4f4', color: '#111', padding: 12, minHeight: 60 }}>{resultado}</pre>
     </div>
   );
 }
