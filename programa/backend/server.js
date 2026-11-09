@@ -1,6 +1,6 @@
 // server.js - Backend de Academia Detectives
 // Rol: recibir la peticion de React, ejecutar Prolog y devolver el texto que Prolog imprime
-// TODA la logica del caso vive en Prolog (prolog/predicados.pl); aqui no se decide nada
+// TODA la logica del caso vive en Prolog (prolog/predicados.pl)
 
 import express from 'express';
 import { execFile } from 'node:child_process';
@@ -48,24 +48,24 @@ async function responder(res, meta) {
   }
 }
 
-// GET /api/personas -> lista de personas del caso
+// GET /api/personas lista de personas del caso
 app.get('/api/personas', (req, res) => {
   responder(res, "findall(P, persona(P), L), format('~w~n', [L])");
 });
 
-// GET /api/lugares -> un lugar por linea, con su descripcion
+// GET /api/lugares un lugar por linea, con su descripcion
 app.get('/api/lugares', (req, res) => {
   responder(res, "forall(lugar(N, D), format('~w: ~w~n', [N, D]))");
 });
 
-// GET /api/objetos -> lista de objetos del caso
+// GET /api/objetos lista de objetos del caso
 app.get('/api/objetos', (req, res) => {
   responder(res, "findall(O, objeto(O), L), format('~w~n', [L])");
 });
 
 // Un nombre de persona valido empieza con letra minuscula y sigue con letras, numeros o "_".
 // Asi nunca puede ser una variable de Prolog (empieza con "_" o mayuscula) ni traer
-// caracteres especiales (comillas, ";", espacios) que cambien la meta.
+// caracteres especiales (comillas, ";", espacios) que cambien la meta
 const NOMBRE_VALIDO = /^[a-z][a-z0-9_]*$/;
 
 // rutaPersona(ruta, construirMeta)
@@ -95,6 +95,21 @@ rutaPersona('/api/contradiccion', (p) =>
   `(tiene_contradiccion(${p}) -> writeln('Si') ; writeln('No'))`);
 rutaPersona('/api/sospechoso', (p) =>
   `(posible_sospechoso(${p}) -> writeln('Si') ; writeln('No'))`);
+
+
+// GET /api/responsables -> lista de personas que son posibles sospechosos
+app.get('/api/responsables', (req, res) => {
+  responder(res, "posibles_responsables(L), format('~w~n', [L])");
+});
+
+// GET /api/explicaciones/:persona -> una explicacion por linea (backtracking de Prolog)
+rutaPersona('/api/explicaciones', (p) =>
+  `forall(explicaciones(${p}, E), format('~w~n', [E]))`);
+
+// GET /api/resolver -> reporte completo que imprime resolver_caso/0
+app.get('/api/resolver', (req, res) => {
+  responder(res, 'resolver_caso');
+});
 
 app.listen(PUERTO, () => {
   console.log(`Backend escuchando en http://localhost:${PUERTO}`);
