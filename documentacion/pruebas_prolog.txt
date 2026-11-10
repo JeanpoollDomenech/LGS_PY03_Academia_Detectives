@@ -1,0 +1,243 @@
+PRUEBAS DE LA LOGICA EN PROLOG - Academia Detectives
+Lenguajes de Programacion (IC-4700) - Proyecto Programado 3 - Semestre II, 2026
+ 
+Consultas hechas en la consola de SWI-Prolog con `swipl predicados.pl`, sin modificar predicados.pl.
+Caso 1: hechos.pl (museo).  Caso 2: hechos_caso2.pl copiado como hechos.pl (escuela).
+Las pruebas con resultado simple muestran lo esperado, lo obtenido y si coinciden;
+las salidas largas (explicaciones y reporte) se muestran completas.
+ 
+CASO 1 - Museo (hechos.pl)
+==========================
+ 
+Prueba 1 - tiene_acceso/2
+Consulta:  ?- tiene_acceso(bruno, bodega).
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 2 - tiene_acceso/2
+Consulta:  ?- tiene_acceso(ana, bodega).
+Esperado:  false
+Obtenido:  false
+Resultado: CORRECTO
+ 
+Prueba 3 - tiene_acceso/2
+Consulta:  ?- tiene_acceso(P, bodega).
+Esperado:  P = bruno ; P = elena
+Obtenido:
+  P = bruno ;
+  P = elena.
+Resultado: CORRECTO
+ 
+Prueba 4 - tiene_acceso/2
+Consulta:  ?- tiene_acceso(diego, laboratorio).  (acceso por objeto)
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 5 - tiene_contradiccion/1
+Consulta:  ?- tiene_contradiccion(bruno).
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 6 - tiene_contradiccion/1
+Consulta:  ?- tiene_contradiccion(carla).
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 7 - tiene_contradiccion/1
+Consulta:  ?- tiene_contradiccion(ana).
+Esperado:  false
+Obtenido:  false
+Resultado: CORRECTO
+ 
+Prueba 8 - tiene_coartada/1
+Consulta:  ?- tiene_coartada(ana).
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 9 - tiene_coartada/1
+Consulta:  ?- tiene_coartada(bruno).
+Esperado:  false
+Obtenido:  false
+Resultado: CORRECTO
+ 
+Prueba 10 - tiene_coartada/1
+Consulta:  ?- tiene_coartada(carla).
+Esperado:  false
+Obtenido:  false
+Resultado: CORRECTO
+ 
+Prueba 11 - posible_sospechoso/1
+Consulta:  ?- posible_sospechoso(X).
+Esperado:  X = bruno
+Obtenido:  X = bruno.
+Resultado: CORRECTO
+ 
+Prueba 12 - posible_sospechoso/1
+Consulta:  ?- posible_sospechoso(ana).
+Esperado:  false
+Obtenido:  false
+Resultado: CORRECTO
+ 
+Prueba 13 - posibles_responsables/1
+Consulta:  ?- posibles_responsables(L).
+Esperado:  L = [bruno]
+Obtenido:  L = [bruno].
+Resultado: CORRECTO
+ 
+Prueba 14 - explicaciones/2
+Consulta:  ?- explicaciones(bruno, E).  (6 explicaciones por backtracking)
+Obtenido:
+    - CONCLUSION: bruno es posible sospechoso: estuvo en el lugar del evento durante la ventana, tuvo acceso o evidencia relacionada y no tiene coartada.
+    - bruno estuvo en bodega (lugar del evento) a las 1950, dentro de la ventana de 1900 a 2100.
+    - bruno tiene acceso a bodega, el lugar del evento.
+    - La evidencia huella esta relacionada con bruno.
+    - La evidencia llave esta relacionada con bruno.
+    - bruno declaro estar en entrada a las 1955, pero un registro la ubica en bodega a las 1950: hay contradiccion.
+ 
+Prueba 15 - explicaciones/2
+Consulta:  ?- explicaciones(ana, E).  (2 explicaciones)
+Obtenido:
+    - La evidencia documento esta relacionada con ana.
+    - ana tiene una posible coartada: declaro estar en biblioteca a las 1930 y los registros no lo contradicen.
+ 
+Prueba 16 - explicaciones/2
+Consulta:  ?- explicaciones(diego, E).
+Obtenido:    - No hay informacion relevante en el caso sobre diego.
+ 
+Prueba 17 - explicaciones/2
+Consulta:  ?- explicaciones(zeta, E).  (persona inexistente)
+Esperado:  false
+Obtenido:  false
+Resultado: CORRECTO
+ 
+Prueba 18 - resolver_caso/0
+Consulta:  ?- resolver_caso.
+Obtenido:
+  === RESOLUCION DEL CASO ===
+  Evento: desaparicion en bodega a las 2000
+  
+  Posibles responsables: [bruno]
+  
+  --- Responsable: bruno ---
+  Evidencias relacionadas: [huella,llave]
+  Movimientos registrados:
+    - a las 1910 en entrada
+    - a las 1950 en bodega
+  Lugares con acceso: [bodega,entrada]
+  Acceso al lugar del evento (bodega): Si
+  Coartada: No
+  Contradiccion: Si (declaro entrada a las 1955; un registro la ubica en bodega a las 1950)
+  Justificacion logica:
+    - CONCLUSION: bruno es posible sospechoso: estuvo en el lugar del evento durante la ventana, tuvo acceso o evidencia relacionada y no tiene coartada.
+    - bruno estuvo en bodega (lugar del evento) a las 1950, dentro de la ventana de 1900 a 2100.
+    - bruno tiene acceso a bodega, el lugar del evento.
+    - La evidencia huella esta relacionada con bruno.
+    - La evidencia llave esta relacionada con bruno.
+    - bruno declaro estar en entrada a las 1955, pero un registro la ubica en bodega a las 1950: hay contradiccion.
+  Validacion de la solucion:
+    - Estuvo en el lugar del evento durante la ventana: Si
+    - Tuvo acceso o tiene evidencia relacionada: Si
+    - No tiene coartada: Si
+    => Solucion valida: Si
+ 
+ 
+CASO 2 - Escuela (hechos_caso2.pl)
+==================================
+ 
+Prueba 1 - posibles_responsables/1
+Consulta:  ?- posibles_responsables(L).
+Esperado:  L = [marta,nicolas]
+Obtenido:  L = [marta,nicolas].
+Resultado: CORRECTO
+ 
+Prueba 2 - posible_sospechoso/1
+Consulta:  ?- posible_sospechoso(X).  (dos sospechosos: backtracking)
+Esperado:  X = marta ; X = nicolas
+Obtenido:
+  X = marta ;
+  X = nicolas.
+Resultado: CORRECTO
+ 
+Prueba 3 - tiene_coartada/1
+Consulta:  ?- tiene_coartada(olga).
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 4 - tiene_coartada/1
+Consulta:  ?- tiene_coartada(pablo).
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 5 - tiene_contradiccion/1
+Consulta:  ?- tiene_contradiccion(marta).
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 6 - tiene_acceso/2
+Consulta:  ?- tiene_acceso(marta, direccion).  (acceso por objeto)
+Esperado:  true
+Obtenido:  true
+Resultado: CORRECTO
+ 
+Prueba 7 - explicaciones/2
+Consulta:  ?- explicaciones(rosa, E).  (persona sin movimientos)
+Obtenido:    - No hay informacion relevante en el caso sobre rosa.
+ 
+Prueba 8 - resolver_caso/0
+Consulta:  ?- resolver_caso.
+Obtenido:
+  === RESOLUCION DEL CASO ===
+  Evento: robo en direccion a las 1430
+  
+  Posibles responsables: [marta,nicolas]
+  
+  --- Responsable: marta ---
+  Evidencias relacionadas: []
+  Movimientos registrados:
+    - a las 1400 en sala_profesores
+    - a las 1420 en direccion
+  Lugares con acceso: [direccion,sala_profesores]
+  Acceso al lugar del evento (direccion): Si
+  Coartada: No
+  Contradiccion: Si (declaro sala_profesores a las 1425; un registro la ubica en direccion a las 1420)
+  Justificacion logica:
+    - CONCLUSION: marta es posible sospechoso: estuvo en el lugar del evento durante la ventana, tuvo acceso o evidencia relacionada y no tiene coartada.
+    - marta estuvo en direccion (lugar del evento) a las 1420, dentro de la ventana de 1330 a 1530.
+    - marta tiene acceso a direccion, el lugar del evento.
+    - marta declaro estar en sala_profesores a las 1425, pero un registro la ubica en direccion a las 1420: hay contradiccion.
+  Validacion de la solucion:
+    - Estuvo en el lugar del evento durante la ventana: Si
+    - Tuvo acceso o tiene evidencia relacionada: Si
+    - No tiene coartada: Si
+    => Solucion valida: Si
+  
+  --- Responsable: nicolas ---
+  Evidencias relacionadas: [huella]
+  Movimientos registrados:
+    - a las 1350 en patio
+    - a las 1435 en direccion
+  Lugares con acceso: [direccion,patio]
+  Acceso al lugar del evento (direccion): Si
+  Coartada: No
+  Contradiccion: Si (declaro patio a las 1430; un registro la ubica en direccion a las 1435)
+  Justificacion logica:
+    - CONCLUSION: nicolas es posible sospechoso: estuvo en el lugar del evento durante la ventana, tuvo acceso o evidencia relacionada y no tiene coartada.
+    - nicolas estuvo en direccion (lugar del evento) a las 1435, dentro de la ventana de 1330 a 1530.
+    - nicolas tiene acceso a direccion, el lugar del evento.
+    - La evidencia huella esta relacionada con nicolas.
+    - nicolas declaro estar en patio a las 1430, pero un registro la ubica en direccion a las 1435: hay contradiccion.
+  Validacion de la solucion:
+    - Estuvo en el lugar del evento durante la ventana: Si
+    - Tuvo acceso o tiene evidencia relacionada: Si
+    - No tiene coartada: Si
+    => Solucion valida: Si
+ 
+ 
