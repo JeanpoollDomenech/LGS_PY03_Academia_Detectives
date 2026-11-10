@@ -1,0 +1,43 @@
+﻿a656387 | Jeanpooll D | 2026-10-25 17:38 | Initial commit
+6bf1518 | Esteban Rodr├¡guez | 2026-10-25 19:24 | Create a.txt
+befe72e | Esteban Rodr├¡guez | 2026-10-25 19:27 | Create a.txt
+e29b058 | Esteban Rodr├¡guez | 2026-10-25 19:31 | Create a.txt
+c13ebfd | Esteban Rodr├¡guez | 2026-10-25 19:31 | Create a.txt
+3adc1bc | Esteban Rodr├¡guez | 2026-10-31 20:47 | Delete documentacion directory
+c51f03e | Esteban Rodr├¡guez | 2026-10-31 20:49 | Delete programa directory
+06eba0c | Esteban Rodr├¡guez | 2026-10-31 20:50 | Create a.txt
+17ccdc8 | Esteban Rodr├¡guez | 2026-10-31 20:51 | Create a.txt
+d42bc51 | Esteban Rodr├¡guez | 2026-10-31 20:52 | Create a.txt
+76b8af2 | Esteban Rodr├¡guez | 2026-10-31 20:53 | Create hechos.pl
+bdadbfe | Esteban Rodr├¡guez | 2026-10-31 14:54 | Add files via upload
+1a50f74 | Esteban Rodr├¡guez | 2026-10-31 15:36 | Update hechos.pl
+ed14cc6 | Esteban Rodr├¡guez | 2026-10-31 15:37 | Add files via upload
+50cef1d | Esteban Rodr├¡guez | 2026-10-31 15:37 | Add files via upload
+5b3fb26 | Esteban Rodr├¡guez | 2026-10-31 15:49 | Update predicados.pl
+7a33def | Esteban Rodr├¡guez | 2026-10-31 15:51 | Delete programa/backend/a.txt
+8c45b2a | Jeanpooll Domenech | 2026-11-04 22:46 | Inicializa el backend con npm y agrega la dependencia express
+6e19a11 | Jeanpooll Domenech | 2026-11-04 22:47 | Agrega server.js con la ruta de prueba /api/personas
+de5aeb1 | Jeanpooll Domenech | 2026-11-04 22:51 | Crea el proyecto React con Vite con una plantilla base
+b8539d1 | Jeanpooll Domenech | 2026-11-04 22:52 | Configura el proxy de api hacia el backend
+1ad73f7 | Jeanpooll Domenech | 2026-11-04 22:53 | Agrega pantalla de prueba que muestra las personas desde Prolog
+078dd96 | Jeanpooll Domenech | 2026-11-04 22:56 | Elimina el a.txt de relleno del frontend
+d4b53fd | Esteban Rodr├¡guez | 2026-11-05 05:07 | Update predicados.pl
+6b70282 | Esteban Rodr├¡guez | 2026-11-05 05:42 | Rename gitignore to .gitignore
+29eff72 | Esteban Rodr├¡guez | 2026-11-08 00:10 | Update predicados.pl
+66a777a | Esteban Rodr├¡guez | 2026-11-08 23:44 | Update predicados.pl
+2aaf3d1 | Jeanpooll Domenech | 2026-11-09 00:55 | Agrega rutas para listar lugares y objetos
+fe763de | Jeanpooll Domenech | 2026-11-09 01:14 | Agrega rutas de consulta por persona con validacion de nombre
+5c498b5 | Jeanpooll Domenech | 2026-11-09 01:43 | Agrega selector de persona cargado desde /api/personas
+002b48c | Jeanpooll Domenech | 2026-11-09 02:04 | Agrega botones de consulta por persona y area de resultado
+ded7e79 | Jeanpooll Domenech | 2026-11-09 02:21 | Agrega rutas de posibles responsables, explicaciones y resolver caso
+f767f59 | Jeanpooll Domenech | 2026-11-09 02:24 | Agrega botones de explicaciones y posibles responsables
+57c940e | Jeanpooll Domenech | 2026-11-09 02:25 | Agrega boton para resolver el caso con area de resultado destacada
+10f45f3 | Jeanpooll Domenech | 2026-11-09 15:48 | Agrega error 404 cuando la persona no existe en el caso
+c92b075 | Jeanpooll Domenech | 2026-11-09 15:58 | Agrega mensajes claros cuando el backend no responde y para resultados vacios
+fcfb548 | Jeanpooll Domenech | 2026-11-09 16:03 | Clasifica los errores de Prolog (sin respuesta, swipl no encontrado)
+9374f03 | Esteban Rodr├¡guez | 2026-11-09 16:18 | Add files via upload
+1b5fc01 | Jeanpooll Domenech | 2026-11-09 22:58 | Agrega guia de pruebas y resultados de las pruebas de Prolog
+3c65d3a | Jeanpooll Domenech | 2026-11-09 23:00 | Agrega info.txt de la entrega
+223317a | Esteban Rodr├¡guez | 2026-11-09 23:28 | Add files via upload
+d96a05f | Jeanpooll D | 2026-11-09 23:28 | Se actualiza el info.txt y se agrega link del repo
+9b703cf | Esteban Rodr├¡guez | 2026-11-09 23:28 | Delete documentacion/a.txt
