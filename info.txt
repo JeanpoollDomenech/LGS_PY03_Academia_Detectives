@@ -4,4 +4,5 @@ Estudiantes: Esteban Rodriguez Vargas y Jeanpooll Domenech Cerdas
 Carnets: Esteban 2022131105 y Jeanpooll 2019255017
 Numero del proyecto programado: Proyecto Programado 3 (Academia Detectives)
 Fecha de entrega: 9 de noviembre de 2026
+Enlace al repositorio GitHub: https://github.com/JeanpoollDomenech/LGS_PY03_Academia_Detectives.git
 Estatus de la entrega: MuyBuena
