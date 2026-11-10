@@ -1,0 +1,7 @@
+Nombre del curso: Lenguajes de Programacion, Grupo 60
+Semestre y año lectivo: Semestre II, 2026
+Estudiantes: Esteban Rodriguez Vargas y Jeanpooll Domenech Cerdas
+Carnets: Esteban 2022131105 y Jeanpooll 2019255017
+Numero del proyecto programado: Proyecto Programado 3 (Academia Detectives)
+Fecha de entrega: 9 de noviembre de 2026
+Estatus de la entrega: MuyBuena
